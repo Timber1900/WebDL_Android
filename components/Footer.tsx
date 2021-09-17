@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors['bg-gray-800'],
     marginTop: 'auto',
     zIndex: 0,
-    flexGrow: 1,
+    width: '80%'
   },
 
   icon: {
