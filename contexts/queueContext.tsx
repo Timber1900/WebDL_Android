@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, createContext, ReactNode, useState } from 'react';
 import ytdl, { videoInfo } from 'react-native-ytdl';
+import ytpl from 'react-native-ytpl';
 import { Alert } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import ShareMenu from "react-native-share-menu";
+import MMKVStorage from "react-native-mmkv-storage";
 
 export interface video {
   info: videoInfo,
@@ -29,19 +30,63 @@ interface SharedItem {
 
 export default function QueueProvider({ children }: QueueProviderProps) {
   const [curQueue, setCurQueue] = useState<video[]>([])
+  const MMKV = new MMKVStorage.Loader().initialize();
 
   const addToQueue = (url: string, queue=curQueue) => {
     return(new Promise<string>(async (res, rej) => {
+      let url_list: string[] = [];
+      if(ytpl.validateID(url)) {
+        console.log(JSON.stringify({ "url": url }))
+        const responce= await fetch('https://www.web-dl.live/api', {
+          method: 'POST',
+          body: JSON.stringify({ "url": url }),
+          headers: {
+            'Content-Type': 'application/json'
+          },
+        })
+        if(responce.status !== 200) {rej(`Error: ${await responce.text()}`); return}
+        const { urls } = await responce.json()
+        url_list = [...urls]
+      } else {
+        url_list = [url]
+      }
+
+      const infos: Promise<ytdl.videoInfo>[] = []
+      for (const URL of url_list) {
+        infos.push(getInfo(URL))
+      }
+
+      Promise.all(infos)
+      .then(val => {
+        const queue_addons: video[] = []
+        if(val) {
+          for(const info of val) {
+            if(info) queue_addons.push({ info, url: info.videoDetails.video_url })
+          }
+        }
+        setCurQueue([...queue, ...queue_addons])
+      })
+    }))
+  }
+
+  const getInfo = (url: string) => {
+    return(new Promise<ytdl.videoInfo>(async (res, rej) => {
       if(!ytdl.validateURL(url)) rej("Invalid url")
       try {
         const info = await ytdl.getInfo(url);
-        console.log(curQueue)
-        setCurQueue([...queue, {info, url}])
-        res("Sucess")
+        res(info)
       } catch (error) {
         rej(error as string)
       }
     }))
+  }
+
+  const saveQueue = () => {
+    MMKV.setArray('queue', curQueue)
+  }
+
+  const getSavedQueue = (): video[] => {
+    return MMKV.getArray('queue') ?? []
   }
 
   const updateQueue = (newQueue: video[]) => {
@@ -51,8 +96,8 @@ export default function QueueProvider({ children }: QueueProviderProps) {
   const handleShare = useCallback(async (item: SharedItem) => {
     if (!item) return
     const { data } = item;
-    const last_queue = await AsyncStorage.getItem('queue')
-    addToQueue(data, JSON.parse(last_queue ?? "[]")).catch(err => Alert.alert("Error: ", err));
+    const last_queue = await getSavedQueue();
+    addToQueue(data, last_queue).catch(err => Alert.alert("Error: ", err));
   }, []);
 
   useEffect(() => {
@@ -60,9 +105,11 @@ export default function QueueProvider({ children }: QueueProviderProps) {
   }, []);
 
   useEffect(() => {
-    AsyncStorage.getItem('queue').then(last_queue => {
-      setCurQueue(JSON.parse(last_queue ?? "[]"))
-    })
+    setCurQueue(getSavedQueue())
+
+    return () => {
+      saveQueue();
+    }
   }, [])
 
   useEffect(() => {
@@ -73,9 +120,7 @@ export default function QueueProvider({ children }: QueueProviderProps) {
   }, []);
 
   useEffect(() => {
-    const jsonValue = JSON.stringify(curQueue)
-    AsyncStorage.setItem('queue', jsonValue).catch(e => console.error(e))
-    console.log(curQueue)
+    saveQueue()
   }, [curQueue])
 
   return (

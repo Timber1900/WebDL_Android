@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 
 import { colors } from '../style';
 
@@ -14,9 +14,11 @@ const Layout = () => {
   return(
     <View style={ styles.container }>
       <Header />
-      {curQueue.map(({info, url}, i) =>
-          <Item key={i} info={info} url={url}/>
-        )}
+      <ScrollView contentContainerStyle={ styles.itemContainer } style={{width: '100%', paddingHorizontal: 20}}>
+        {curQueue.map(({info, url}, i) =>
+            <Item key={i} info={info} url={url}/>
+          )}
+      </ScrollView>
       <Footer />
     </View>
   )
@@ -33,6 +35,13 @@ const styles = StyleSheet.create({
     height: "100%",
     fontFamily: "sans",
     backgroundColor: colors["bg-gray-700"]
+  },
+
+  itemContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
   }
 });
 

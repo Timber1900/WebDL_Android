@@ -16,13 +16,12 @@ const Item = ({ info }: video) => {
 
 const styles = StyleSheet.create({
   container: {
-    width: Dimensions.get('window').width - 20,
+    width: '100%',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'center',
     marginVertical: 10,
-    marginHorizontal: 20,
     backgroundColor: colors['bg-gray-800'],
     paddingTop: 10,
     padding: 20,

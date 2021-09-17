@@ -16,7 +16,10 @@ const Footer = () => {
       <View style={styles.container}>
         <Text numberOfLines={1} style={styles.text}>{ status }</Text>
       </View>
-      <Icon onPress={() => {downloadQueue(QueueContextData, ProgressContextData)}} style={styles.icon} type="material" name="file-download" color="#fff" size={35}/>
+      <View style={styles.icon} >
+        <Icon onPress={() => {QueueContextData.updateQueue([])}} type="material" name="close" color="#fff" size={35}/>
+        <Icon onPress={() => {downloadQueue(QueueContextData, ProgressContextData)}} type="material" name="file-download" color="#fff" size={35}/>
+      </View>
     </View>
   )
 }
@@ -30,8 +33,7 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: colors['bg-gray-800'],
     marginTop: 'auto',
-    width: Dimensions.get('window').width,
-
+    width: '100%',
   },
 
   container: {
@@ -42,14 +44,17 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: colors['bg-gray-800'],
     marginTop: 'auto',
-    width: "80%"
+    zIndex: 0,
+    flexGrow: 1,
   },
 
   icon: {
     display: 'flex',
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginHorizontal: 10,
+    paddingHorizontal: 10,
+    zIndex: 1
   },
 
   text: {
