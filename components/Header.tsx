@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { colors } from '../style';
 import ProgressBar from 'react-native-progress/Bar'
-import { ProgressContext } from '../contexts/progressContext';
+import { ProgressContext } from '../contexts/ProgressContext';
 
 
 const Header = () => {
@@ -10,14 +10,14 @@ const Header = () => {
 
   return(
     <View style={ styles.progressContainer }>
-        <View style={ styles.progressBarContainer }>
-          <ProgressBar color={colors['bg-blue-500']} unfilledColor={colors["bg-gray-700"]} borderWidth={0} progress={progress} width={null} />
-        </View>
-        <View style={ styles.progressTextContainer }>
-          <Text numberOfLines={1} style={ styles.text }>{`${(progress*100).toFixed(1)}%`}</Text>
-          <Text numberOfLines={1} style={[styles.text, {marginLeft: 'auto'}]}>{vel} | ETA: {eta}s</Text>
-        </View>
+      <View style={ styles.progressBarContainer }>
+        <ProgressBar color={colors['bg-blue-500']} unfilledColor={colors["bg-gray-700"]} borderWidth={0} progress={progress} width={null} />
       </View>
+      <View style={ styles.progressTextContainer }>
+        <Text numberOfLines={1} style={ styles.text }>{`${(progress*100).toFixed(1)}%`}</Text>
+        <Text numberOfLines={1} style={[styles.text, {marginLeft: 'auto'}]}>{vel} | ETA: {eta}s</Text>
+      </View>
+    </View>
   )
 }
 
