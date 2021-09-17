@@ -7,43 +7,19 @@ import RNFetchBlob from 'rn-fetch-blob'
 import { colors } from '../style';
 import performance from 'react-native-performance';
 import requestPermissions from '../functions/requestPermissions';
-import ShareMenu from "react-native-share-menu";
-import { ProgressContext } from '../contexts/progressContext';
+import { ProgressContext } from '../contexts/ProgressContext';
 import msToTime from '../functions/msToTime';
 import Header from './Header';
-
-type SharedItem = {
-  mimeType: string,
-  data: string,
-  extraData: any,
-};
+import { QueueContext } from '../contexts/QueueContext';
 
 const Layout = () => {
   const [url, setUrl] = useState('');
   const { updateEta, updateProgress, updateVel } = useContext(ProgressContext);
+  const { addToQueue } = useContext(QueueContext)
 
-  const handleShare = useCallback((item: SharedItem) => {
-    if (!item) {
-      return;
-    }
-    const { data } = item;
-    setUrl(data);
-  }, []);
-
-  useEffect(() => {
-    ShareMenu.getInitialShare(handleShare);
-  }, []);
-
-  useEffect(() => {
-    const listener = ShareMenu.addNewShareListener(handleShare);
-    return () => {
-      listener.remove();
-    };
-  }, []);
 
   const downloadVideo = async () => {
     if(!requestPermissions()) return
-
     if(!ytdl.validateURL(url)) {
       console.log(url)
       Alert.alert(
@@ -52,9 +28,7 @@ const Layout = () => {
       )
       return
     }
-
     const basicInfo = await ytdl.getBasicInfo(url);
-
     const audioPipe = await RNFFmpegConfig.registerNewFFmpegPipe()
     const videoPipe = await RNFFmpegConfig.registerNewFFmpegPipe()
     const downloadPath  = `${RNFS.ExternalStorageDirectoryPath}/Download/${basicInfo.videoDetails.title.replace(/([|\\?*<\":>+[\]/'])/g, '')}.mkv`;
@@ -75,21 +49,16 @@ const Layout = () => {
       '-y',
       downloadPath
     ];
-
     const audio = await ytdl(url, { quality: 'highestaudio' });
     const video = await ytdl(url, { quality: 'highestvideo' });
-
     RNFFmpeg.executeWithArguments(video_args).then((val) => { console.log(val); if(val === 0) updateProgress(1) } ).catch(err => {console.log(err); Alert.alert("Error", err.toString())})
-
     RNFetchBlob
     .config({ path: audioPipe})
     .fetch('GET', audio[0].url, {})
     .catch(err => {console.log(err); Alert.alert("Error", err.toString())})
-
     let downloadLast = performance.now();
     let downloadBegin = performance.now();
     let last_received = 0;
-
     RNFetchBlob
     .config({ path: videoPipe })
     .fetch('GET', video[0].url, {})
@@ -109,14 +78,15 @@ const Layout = () => {
     .catch(err => {console.log(err); Alert.alert("Error", err.toString())})
   };
 
+
   return(
-      <View style={ styles.container }>
-        <Header />
-        <View style={styles.inputContainer}>
-          <TextInput defaultValue={url} onChangeText={url_new => setUrl(url_new)} style={ styles.input }/>
-          <Button title="Download Video" onPress={downloadVideo} />
-        </View>
+    <View style={ styles.container }>
+      <Header />
+      <View style={styles.inputContainer}>
+        <TextInput defaultValue={url} onChangeText={url_new => setUrl(url_new)} style={ styles.input }/>
+        <Button title="Add to Queue" onPress={() => {addToQueue(url)}} />
       </View>
+    </View>
   )
 }
 
