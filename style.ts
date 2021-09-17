@@ -1,3 +1,13 @@
+import { StyleSheet } from 'react-native';
+
+export const globalStyles = StyleSheet.create({
+  shadowMD: {
+    shadowColor: "rgba(0, 0, 0, 0.1)",
+    shadowOffset: {width: 0, height: 4},
+    shadowRadius: 6,
+  }
+})
+
 export const colors =  {
   "bg-black": "rgba(0, 0, 0, 1)",
   "bg-white": "rgba(255, 255, 255, 1)",

@@ -6,27 +6,28 @@
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "start": "react-native start",
-    "test": "jest",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "build-debug": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/  && cd ./android && ./gradlew assembleDebug && cd ../"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.15.8",
     "react": "17.0.2",
     "react-native": "0.65.1",
+    "react-native-elements": "^3.4.2",
     "react-native-ffmpeg": "^0.5.2",
     "react-native-fs": "^2.18.0",
     "react-native-progress": "^5.0.0",
+    "react-native-safe-area-context": "^3.3.2",
     "react-native-share-menu": "^5.0.4",
+    "react-native-vector-icons": "^8.1.0",
     "react-native-ytdl": "^4.8.3",
-    "rn-fetch-blob": "^0.12.0",
-    "tailwind-react-native-classnames": "^1.5.0"
+    "rn-fetch-blob": "^0.12.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
     "@babel/runtime": "^7.12.5",
     "@bam.tech/react-native-make": "^3.0.3",
     "@react-native-community/cli": "^5.0.1",
+    "@react-native-community/cli-platform-android": "^5.0.1",
     "@react-native-community/eslint-config": "^2.0.0",
     "@types/jest": "^26.0.23",
     "@types/react-native": "^0.65.0",
