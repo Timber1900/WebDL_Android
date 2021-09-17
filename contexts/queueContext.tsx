@@ -4,7 +4,7 @@ import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ShareMenu from "react-native-share-menu";
 
-interface video {
+export interface video {
   info: videoInfo,
   url: string,
 }
@@ -12,6 +12,7 @@ interface video {
 export interface QueueContextData {
   curQueue: video[]
   addToQueue: (url: string) => Promise<string>
+  updateQueue: (newQueue: video[]) => void
 }
 
 export const QueueContext = createContext({} as QueueContextData);
@@ -43,6 +44,9 @@ export default function QueueProvider({ children }: QueueProviderProps) {
     }))
   }
 
+  const updateQueue = (newQueue: video[]) => {
+    setCurQueue(newQueue);
+  }
 
   const handleShare = useCallback(async (item: SharedItem) => {
     if (!item) return
@@ -78,7 +82,8 @@ export default function QueueProvider({ children }: QueueProviderProps) {
     <QueueContext.Provider
       value={{
         curQueue,
-        addToQueue
+        addToQueue,
+        updateQueue
       }}
     >
       {children}

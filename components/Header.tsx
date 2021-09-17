@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { colors } from '../style';
+import { colors, globalStyles } from '../style';
 import ProgressBar from 'react-native-progress/Bar'
 import { ProgressContext } from '../contexts/ProgressContext';
 
@@ -10,7 +10,7 @@ const Header = () => {
 
   return(
     <View style={ styles.progressContainer }>
-      <View style={ styles.progressBarContainer }>
+      <View style={ [styles.progressBarContainer, globalStyles.shadowMD] }>
         <ProgressBar color={colors['bg-blue-500']} unfilledColor={colors["bg-gray-700"]} borderWidth={0} progress={progress} width={null} />
       </View>
       <View style={ styles.progressTextContainer }>
@@ -28,10 +28,10 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    width: "90%",
-    height: 48,
+    width: "100%",
     padding: 10,
-    margin: 12,
+    paddingTop: 15,
+    backgroundColor: colors['bg-gray-800'],
   },
 
   progressTextContainer: {
