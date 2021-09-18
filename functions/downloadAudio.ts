@@ -25,26 +25,33 @@ export const downloadAudio = (url: string, { updateEta, updateProgress, updateVe
     const downloadPath  = `${RNFS.ExternalStorageDirectoryPath}/Music/WebDL/${basicInfo.videoDetails.title.replace(/([|\\?*<\":>+[\]/'])/g, '')}.m4a`;
 
 
-    let downloadLast = performance.now();
-    let downloadBegin = performance.now();
-    let last_received = 0;
+    // let downloadLast = performance.now();
+    // let downloadBegin = performance.now();
+    // let last_received = 0;
     RNFetchBlob
-    .config({ path: downloadPath })
+    .config({ addAndroidDownloads:{
+      path: downloadPath,
+      title: basicInfo.videoDetails.title,
+      notification: true,
+      useDownloadManager: true,
+    }})
     .fetch('GET', audio[0].url, {})
-    .progress({ interval : 25}, (received, total) => {
-      const new_time = performance.now();
-      const delta_time = new_time - downloadLast;
-      const delta_download = (received - last_received);
-      const delta_time_eta = new_time - downloadBegin;
-      const downloadSpeed = received/delta_time_eta;
-      const eta_time = msToTime((total-received)/downloadSpeed);
-      last_received = received;
-      downloadLast = new_time;
-      updateProgress(received / total);
-      updateVel(`${((delta_download/(1024*1024))/(delta_time/1000)).toFixed(2)}MiB/s`);
-      updateEta(eta_time);
-    })
-    .then(() => res("Downloaded sucessfully"))
+    // .progress({ interval : 25}, (received, total) => {
+    //   const new_time = performance.now();
+    //   const delta_time = new_time - downloadLast;
+    //   const delta_download = (received - last_received);
+    //   const delta_time_eta = new_time - downloadBegin;
+    //   const downloadSpeed = received/delta_time_eta;
+    //   const eta_time = msToTime((total-received)/downloadSpeed);
+    //   last_received = received;
+    //   downloadLast = new_time;
+    //   updateProgress(received / total);
+    //   updateVel(`${((delta_download/(1024*1024))/(delta_time/1000)).toFixed(2)}MiB/s`);
+    //   updateEta(eta_time);
+    // })
     .catch(err => rej(err))
+    .finally(() => console.log("Finished"))
+    res("Started download")
+
   }))
 }

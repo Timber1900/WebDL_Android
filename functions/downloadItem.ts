@@ -8,7 +8,7 @@ import RNFetchBlob from 'rn-fetch-blob'
 import { LogLevel, RNFFmpeg, RNFFmpegConfig } from 'react-native-ffmpeg';
 import { ProgressContextData } from '../contexts/ProgressContext';
 
-export const downloadItem = async (url: string, { updateEta, updateProgress, updateVel }: ProgressContextData) => {
+export const downloadItem = async (url: string, format: string, { updateEta, updateProgress, updateVel }: ProgressContextData) => {
   return(new Promise(async (res, rej) => {
     if(!requestPermissions()) rej("User failed to accept premissions")
     if(!ytdl.validateURL(url)) {
@@ -23,7 +23,7 @@ export const downloadItem = async (url: string, { updateEta, updateProgress, upd
     const basicInfo = await ytdl.getBasicInfo(url);
     const audioPipe = await RNFFmpegConfig.registerNewFFmpegPipe()
     const videoPipe = await RNFFmpegConfig.registerNewFFmpegPipe()
-    const downloadPath  = `${RNFS.ExternalStorageDirectoryPath}/Download/${basicInfo.videoDetails.title.replace(/([|\\?*<\":>+[\]/'])/g, '')}.mkv`;
+    const downloadPath  = `${RNFS.ExternalStorageDirectoryPath}/Download/${basicInfo.videoDetails.title.replace(/([|\\?*<\":>+[\]/'])/g, '')}.${format}`;
     const video_args = ['-loglevel', `${LogLevel.AV_LOG_WARNING}`, '-hide_banner', '-i', audioPipe, '-i', videoPipe, '-map', '0:a', '-map', '1:v', '-c:v', 'copy', '-y', downloadPath];
     const audio = await ytdl(url, { quality: 'highestaudio' });
     const video = await ytdl(url, { quality: 'highestvideo' });

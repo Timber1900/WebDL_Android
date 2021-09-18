@@ -15,8 +15,8 @@ const Layout = () => {
     <View style={ styles.container }>
       <Header />
       <ScrollView contentContainerStyle={ styles.itemContainer } style={{width: '100%', paddingHorizontal: 20}}>
-        {curQueue.map(({info, url}, i) =>
-            <Item key={i} info={info} url={url}/>
+        {curQueue.map(({info, url, ext}, i) =>
+            <Item ext={ext} key={i} info={info} url={url} index={i}/>
           )}
       </ScrollView>
       <Footer />

@@ -1,3 +1,5 @@
+declare module 'react-native-picker-select'
+
 declare module 'react-native-ytdl' {
   import { ClientRequest } from 'http';
   import { Readable } from 'stream';

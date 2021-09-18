@@ -8,12 +8,14 @@ import MMKVStorage from "react-native-mmkv-storage";
 export interface video {
   info: videoInfo,
   url: string,
+  ext: 'v mkv' | 'v mp4' | 'v webm' | 'a m4a'
 }
 
 export interface QueueContextData {
   curQueue: video[]
   addToQueue: (url: string) => Promise<string>
-  updateQueue: (newQueue: video[]) => void
+  updateQueue: (newQueue: video[]) => void,
+  changeVideoExt: (newExt: 'v mkv' | 'v mp4' | 'v webm' | 'a m4a', index: number) => void
 }
 
 export const QueueContext = createContext({} as QueueContextData);
@@ -61,7 +63,7 @@ export default function QueueProvider({ children }: QueueProviderProps) {
         const queue_addons: video[] = []
         if(val) {
           for(const info of val) {
-            if(info) queue_addons.push({ info, url: info.videoDetails.video_url })
+            if(info) queue_addons.push({ info, url: info.videoDetails.video_url, ext: 'a m4a' })
           }
         }
         setCurQueue([...queue, ...queue_addons])
@@ -91,6 +93,12 @@ export default function QueueProvider({ children }: QueueProviderProps) {
 
   const updateQueue = (newQueue: video[]) => {
     setCurQueue(newQueue);
+  }
+
+  const changeVideoExt = (newExt: 'v mkv' | 'v mp4' | 'v webm' | 'a m4a', index: number) => {
+    const temp = [...curQueue]
+    temp[index].ext = newExt
+    setCurQueue(temp)
   }
 
   const handleShare = useCallback(async (item: SharedItem) => {
@@ -128,7 +136,8 @@ export default function QueueProvider({ children }: QueueProviderProps) {
       value={{
         curQueue,
         addToQueue,
-        updateQueue
+        updateQueue,
+        changeVideoExt
       }}
     >
       {children}

@@ -7,13 +7,21 @@ export const downloadQueue = async ({ curQueue, updateQueue }: QueueContextData,
   const tempQueue = [...curQueue]
   console.log(curQueue)
 
-  for (const { url, info } of tempQueue) {
-    console.log(info.videoDetails.title);
+  for (const { url, info, ext } of tempQueue) {
     ProgressContextData.updateStatus(`Downloading ${info.videoDetails.title}`);
-    await downloadAudio(url, ProgressContextData);
+
+    const [type, format] = ext.split(' ')
+
+    if(type === 'v') {
+      await downloadItem(url, format, ProgressContextData);
+      ProgressContextData.updateStatus(`Done Downloading ${info.videoDetails.title}`);
+    } else {
+      await downloadAudio(url, ProgressContextData);
+      ProgressContextData.updateStatus(`Started Downloading ${info.videoDetails.title}`);
+    }
+
     const temp = curQueue.filter(val => val.url !== url);
     curQueue = temp;
-    ProgressContextData.updateStatus(`Done Downloading ${info.videoDetails.title}`);
     updateQueue(temp);
   }
 }
