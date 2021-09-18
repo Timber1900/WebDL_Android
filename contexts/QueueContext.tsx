@@ -1,9 +1,11 @@
-import React, { useCallback, useEffect, createContext, ReactNode, useState } from 'react';
+import React, { useCallback, useEffect, createContext, ReactNode, useState, useContext } from 'react';
 import ytdl, { videoInfo } from 'react-native-ytdl';
 import ytpl from 'react-native-ytpl';
 import { Alert } from 'react-native';
 import ShareMenu from "react-native-share-menu";
 import MMKVStorage from "react-native-mmkv-storage";
+import util from 'util';
+import { ProgressContext } from './ProgressContext';
 
 export interface video {
   info: videoInfo,
@@ -13,9 +15,11 @@ export interface video {
 
 export interface QueueContextData {
   curQueue: video[]
+  defaultExt: 'v mkv' | 'v mp4' | 'v webm' | 'a m4a'
   addToQueue: (url: string) => Promise<string>
   updateQueue: (newQueue: video[]) => void,
-  changeVideoExt: (newExt: 'v mkv' | 'v mp4' | 'v webm' | 'a m4a', index: number) => void
+  updateDefaultExt: (newDefaultExt: 'v mkv' | 'v mp4' | 'v webm' | 'a m4a') => void,
+  changeVideoExt: (newExt: 'v mkv' | 'v mp4' | 'v webm' | 'a m4a', index: number) => void,
 }
 
 export const QueueContext = createContext({} as QueueContextData);
@@ -31,11 +35,16 @@ interface SharedItem {
 };
 
 export default function QueueProvider({ children }: QueueProviderProps) {
-  const [curQueue, setCurQueue] = useState<video[]>([])
   const MMKV = new MMKVStorage.Loader().initialize();
+  const {status, updateStatus} = useContext(ProgressContext)
+  const [curQueue, setCurQueue] = useState<video[]>([])
+  const [defaultExt, setDefaultExt] = useState<'v mkv' | 'v mp4' | 'v webm' | 'a m4a'>(MMKV.getString('def_ext') as 'v mkv' | 'v mp4' | 'v webm' | 'a m4a' ?? 'v mkv')
 
   const addToQueue = (url: string, queue=curQueue) => {
     return(new Promise<string>(async (res, rej) => {
+      let currentInfo = 'Fetching videos';
+      updateStatus(currentInfo);
+
       let url_list: string[] = [];
       if(ytpl.validateID(url)) {
         console.log(JSON.stringify({ "url": url }))
@@ -58,15 +67,32 @@ export default function QueueProvider({ children }: QueueProviderProps) {
         infos.push(getInfo(URL))
       }
 
-      Promise.all(infos)
-      .then(val => {
+      const promise = Promise.all(infos)
+      // const InformUser = async () => {
+      //   if (util.inspect(promise).includes('pending')) {
+      //     if (currentInfo.includes('Fetching videos')) {
+      //       const new_info =
+      //       currentInfo.substring(currentInfo.length - 3, currentInfo.length) === '...'
+      //           ? currentInfo.substring(0, currentInfo.length - 3)
+      //           : `${currentInfo}.`;
+      //       currentInfo = new_info;
+      //       updateStatus(new_info);
+      //     }
+      //     setTimeout(InformUser, 333);
+      //   }
+      // };
+
+      // InformUser();
+
+      promise.then(val => {
         const queue_addons: video[] = []
         if(val) {
           for(const info of val) {
-            if(info) queue_addons.push({ info, url: info.videoDetails.video_url, ext: 'a m4a' })
+            if(info) queue_addons.push({ info, url: info.videoDetails.video_url, ext: MMKV.getString('def_ext') as 'v mkv' | 'v mp4' | 'v webm' | 'a m4a' })
           }
         }
         setCurQueue([...queue, ...queue_addons])
+        let currentInfo = 'Done fetching';
       })
     }))
   }
@@ -93,6 +119,11 @@ export default function QueueProvider({ children }: QueueProviderProps) {
 
   const updateQueue = (newQueue: video[]) => {
     setCurQueue(newQueue);
+  }
+
+  const updateDefaultExt = (newDefaultExt: 'v mkv' | 'v mp4' | 'v webm' | 'a m4a') => {
+    MMKV.setString('def_ext', newDefaultExt)
+    setDefaultExt(newDefaultExt);
   }
 
   const changeVideoExt = (newExt: 'v mkv' | 'v mp4' | 'v webm' | 'a m4a', index: number) => {
@@ -131,12 +162,18 @@ export default function QueueProvider({ children }: QueueProviderProps) {
     saveQueue()
   }, [curQueue])
 
+  useEffect(() => {
+    MMKV.setString('def_ext', defaultExt)
+  }, [defaultExt])
+
   return (
     <QueueContext.Provider
       value={{
         curQueue,
+        defaultExt,
         addToQueue,
         updateQueue,
+        updateDefaultExt,
         changeVideoExt
       }}
     >

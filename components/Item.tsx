@@ -4,14 +4,40 @@ import { Icon } from 'react-native-elements'
 import { QueueContext, video } from '../contexts/QueueContext';
 import { colors } from '../style';
 import { Picker } from '@react-native-picker/picker';
+import { ProgressContext } from '../contexts/ProgressContext';
+import { downloadItem } from '../functions/downloadItem';
+import { downloadAudio } from '../functions/downloadAudio';
 
 const Item = ({ info, ext, index }: video & {index: number}) => {
-  const { changeVideoExt } = useContext(QueueContext)
+  const { changeVideoExt, curQueue, updateQueue } = useContext(QueueContext)
+  const ProgressContextData = useContext(ProgressContext)
   const [selectedFormat, setSelectedFormat] = useState(ext);
 
   useEffect(() => {
     changeVideoExt(selectedFormat, index)
   }, [selectedFormat])
+
+  const removeFromQueue = () => {
+    const temp = [...curQueue];
+    temp.splice(index, 1)
+    updateQueue(temp);
+  }
+
+  const downloadVideo = async () => {
+    ProgressContextData.updateStatus(`Downloading ${info.videoDetails.title}`);
+
+    const [type, format] = selectedFormat.split(' ')
+
+    if(type === 'v') {
+      await downloadItem(info.videoDetails.video_url, format, ProgressContextData);
+      ProgressContextData.updateStatus(`Done Downloading ${info.videoDetails.title}`);
+    } else {
+      await downloadAudio(info.videoDetails.video_url, ProgressContextData);
+      ProgressContextData.updateStatus(`Started Downloading ${info.videoDetails.title}`);
+    }
+
+    removeFromQueue()
+  }
 
   return(
     <View style={styles.container}>
@@ -20,8 +46,8 @@ const Item = ({ info, ext, index }: video & {index: number}) => {
         <Image style={styles.thumbnail} source={{uri: info.videoDetails.thumbnails[info.videoDetails.thumbnails.length - 1].url}} />
         <View style={ styles.chooserContainer }>
           <View style={ styles.buttonsContainer }>
-            <Icon onPress={() => {}} type="material" name="close" color="#fff" size={35}/>
-            <Icon onPress={() => {}} type="material" name="file-download" color="#fff" size={35}/>
+            <Icon onPress={removeFromQueue} type="material" name="close" color="#fff" size={35}/>
+            <Icon onPress={downloadVideo} type="material" name="file-download" color="#fff" size={35}/>
             <Icon onPress={() => {}} type="material" name="edit" color="#fff" size={35}/>
           </View>
           <View style={ styles.pickerContainer }>
