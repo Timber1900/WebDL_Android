@@ -7,11 +7,14 @@ import { Picker } from '@react-native-picker/picker';
 import { ProgressContext } from '../contexts/ProgressContext';
 import { downloadItem } from '../functions/downloadItem';
 import { downloadAudio } from '../functions/downloadAudio';
+import { downloadOther } from '../functions/downloadOther';
 
-const Item = ({ info, ext, index }: video & {index: number}) => {
+const Item = ({ info, ext, index, youtube, otherInfo, url }: video & {index: number}) => {
   const { changeVideoExt, curQueue, updateQueue } = useContext(QueueContext)
   const ProgressContextData = useContext(ProgressContext)
   const [selectedFormat, setSelectedFormat] = useState(ext);
+  const title = youtube ? info?.videoDetails.title : otherInfo?.title
+  const thumbnail = youtube ? info?.videoDetails.thumbnails[info?.videoDetails.thumbnails.length - 1].url : otherInfo?.thumbnails ? otherInfo?.thumbnails[otherInfo?.thumbnails.length - 1].url : 'https://media.istockphoto.com/vectors/no-thumbnail-image-vector-graphic-vector-id1147544806?k=20&m=1147544806&s=170667a&w=0&h=5rN3TBN7bwbhW_0WyTZ1wU_oW5Xhan2CNd-jlVVnwD0='
 
   useEffect(() => {
     changeVideoExt(selectedFormat, index)
@@ -24,16 +27,19 @@ const Item = ({ info, ext, index }: video & {index: number}) => {
   }
 
   const downloadVideo = async () => {
-    ProgressContextData.updateStatus(`Downloading ${info.videoDetails.title}`);
+    ProgressContextData.updateStatus(`Downloading ${title}`);
 
     const [type, format] = selectedFormat.split(' ')
 
-    if(type === 'v') {
-      await downloadItem(info.videoDetails.video_url, format, ProgressContextData);
-      ProgressContextData.updateStatus(`Done Downloading ${info.videoDetails.title}`);
+    if(!youtube) {
+      if(otherInfo) await downloadOther(otherInfo, ProgressContextData),
+      ProgressContextData.updateStatus(`Done Downloading ${title}`);
+    } else if(type === 'v') {
+      await downloadItem(url, format, ProgressContextData);
+      ProgressContextData.updateStatus(`Done Downloading ${title}`);
     } else {
-      await downloadAudio(info.videoDetails.video_url, ProgressContextData);
-      ProgressContextData.updateStatus(`Started Downloading ${info.videoDetails.title}`);
+      await downloadAudio(url, ProgressContextData);
+      ProgressContextData.updateStatus(`Started Downloading ${title}`);
     }
 
     removeFromQueue()
@@ -41,9 +47,9 @@ const Item = ({ info, ext, index }: video & {index: number}) => {
 
   return(
     <View style={styles.container}>
-      <Text numberOfLines={1} style={styles.text}>{info.videoDetails.title}</Text>
+      <Text numberOfLines={1} style={styles.text}>{title}</Text>
       <View style={styles.mainContainer}>
-        <Image style={styles.thumbnail} source={{uri: info.videoDetails.thumbnails[info.videoDetails.thumbnails.length - 1].url}} />
+        <Image style={styles.thumbnail} source={{uri: thumbnail}} />
         <View style={ styles.chooserContainer }>
           <View style={ styles.buttonsContainer }>
             <Icon onPress={removeFromQueue} type="material" name="close" color="#fff" size={35}/>

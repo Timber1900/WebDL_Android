@@ -10,6 +10,7 @@
       android:allowBackup="false"
       android:screenOrientation="portrait"
       android:requestLegacyExternalStorage="true"
+      android:extractNativeLibs="true"
       android:theme="@style/AppTheme">
       <activity
         android:name=".MainActivity"
