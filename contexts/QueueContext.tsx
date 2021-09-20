@@ -6,11 +6,14 @@ import ShareMenu from "react-native-share-menu";
 import MMKVStorage from "react-native-mmkv-storage";
 import util from 'util';
 import { ProgressContext } from './ProgressContext';
+import getOtherInfo, { YoutubeDLWrapperInfo } from '../native_modules/YoutubeDL_Wrapper';
 
 export interface video {
-  info: videoInfo,
+  info?: videoInfo,
+  otherInfo?: YoutubeDLWrapperInfo,
   url: string,
-  ext: 'v mkv' | 'v mp4' | 'v webm' | 'a m4a'
+  ext: 'v mkv' | 'v mp4' | 'v webm' | 'a m4a',
+  youtube: boolean
 }
 
 export interface QueueContextData {
@@ -62,7 +65,7 @@ export default function QueueProvider({ children }: QueueProviderProps) {
         url_list = [url]
       }
 
-      const infos: Promise<ytdl.videoInfo>[] = []
+      const infos: Promise<{info: videoInfo | YoutubeDLWrapperInfo, youtube: boolean}>[] = []
       for (const URL of url_list) {
         infos.push(getInfo(URL))
       }
@@ -87,8 +90,14 @@ export default function QueueProvider({ children }: QueueProviderProps) {
       promise.then(val => {
         const queue_addons: video[] = []
         if(val) {
-          for(const info of val) {
-            if(info) queue_addons.push({ info, url: info.videoDetails.video_url, ext: MMKV.getString('def_ext') as 'v mkv' | 'v mp4' | 'v webm' | 'a m4a' })
+          for(const {info, youtube} of val) {
+            if(youtube) {
+              const youtubeInfo = info as videoInfo;
+              queue_addons.push({ info: youtubeInfo, url: youtubeInfo.videoDetails.video_url, ext: MMKV.getString('def_ext') as 'v mkv' | 'v mp4' | 'v webm' | 'a m4a', youtube})
+            } else {
+              const otherInfo = info as YoutubeDLWrapperInfo;
+              queue_addons.push({ otherInfo: otherInfo, url: otherInfo.url, ext: MMKV.getString('def_ext') as 'v mkv' | 'v mp4' | 'v webm' | 'a m4a', youtube})
+            }
           }
         }
         setCurQueue([...queue, ...queue_addons])
@@ -98,11 +107,18 @@ export default function QueueProvider({ children }: QueueProviderProps) {
   }
 
   const getInfo = (url: string) => {
-    return(new Promise<ytdl.videoInfo>(async (res, rej) => {
-      if(!ytdl.validateURL(url)) rej("Invalid url")
+    return(new Promise<{info: videoInfo | YoutubeDLWrapperInfo, youtube: boolean}>(async (res, rej) => {
+      if(!ytdl.validateURL(url)) {
+        try {
+          const info = await getOtherInfo(url);
+          res({info, youtube: false})
+        } catch (error) {
+          rej("Invalid url")
+        }
+      }
       try {
         const info = await ytdl.getInfo(url);
-        res(info)
+        res({info, youtube: true})
       } catch (error) {
         rej(error as string)
       }

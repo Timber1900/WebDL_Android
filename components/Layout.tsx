@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { colors } from '../style';
 import Header from './Header';
@@ -7,6 +7,7 @@ import Item from './Item';
 import Footer from './Footer';
 import Backdrop from './Backdrop';
 import SettingsModal from './SettingsModal';
+import getOtherInfo from '../native_modules/YoutubeDL_Wrapper';
 
 const Layout = () => {
   const [settings, setSettings] = useState(false);
@@ -23,8 +24,8 @@ const Layout = () => {
       <View style={ styles.container }>
         <Header />
         <ScrollView contentContainerStyle={ styles.itemContainer } style={{width: '100%', paddingHorizontal: 20}}>
-          {curQueue.map(({info, url, ext}, i) =>
-              <Item ext={ext} key={i} info={info} url={url} index={i}/>
+          {curQueue.map(({info, url, ext, youtube, otherInfo}, i) =>
+              <Item youtube={youtube} otherInfo={otherInfo} ext={ext} key={i} info={info} url={url} index={i}/>
             )}
         </ScrollView>
         <Footer open_settings={() => {setSettings(true)}}/>

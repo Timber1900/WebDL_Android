@@ -4,7 +4,6 @@ import android.app.Application;
 import android.content.Context;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
-import com.reactnativecommunity.picker.RNCPickerPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.oblador.performance.PerformancePackage;
 import com.meedan.ShareMenuPackage;
@@ -19,6 +18,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import com.ammarahmed.mmkv.RNMMKVJSIModulePackage;
 import com.facebook.react.bridge.JSIModulePackage;
+import com.yausername.youtubedl_android.YoutubeDL;
+import com.yausername.youtubedl_android.YoutubeDLException;
+import android.util.Log;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -35,7 +37,8 @@ public class MainApplication extends Application implements ReactApplication {
           List<ReactPackage> packages = new PackageList(this).getPackages();
           // Packages that cannot be autolinked yet can be added manually here, for example:
           // packages.add(new MyReactNativePackage());
-          return packages;
+            packages.add(new MyAppPackage());
+            return packages;
         }
 
         @Override
@@ -59,6 +62,11 @@ public class MainApplication extends Application implements ReactApplication {
     super.onCreate();
     SoLoader.init(this, /* native exopackage */ false);
     initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
+      try {
+          YoutubeDL.getInstance().init(this);
+      } catch (YoutubeDLException e) {
+          Log.e("YoutubeDL", "failed to initialize youtubedl-android", e);
+      }
   }
 
   /**
