@@ -8,7 +8,7 @@ import performance from 'react-native-performance';
 import msToTime from './msToTime';
 
 
-export const downloadAudio = (url: string, { updateEta, updateProgress, updateVel }: ProgressContextData) => {
+export const downloadAudio = (url: string, title: string, { updateEta, updateProgress, updateVel }: ProgressContextData) => {
   return(new Promise(async (res, rej) => {
     if(!requestPermissions()) rej("User failed to accept premissions")
     if(!ytdl.validateURL(url)) {
@@ -22,7 +22,7 @@ export const downloadAudio = (url: string, { updateEta, updateProgress, updateVe
 
     const basicInfo = await ytdl.getBasicInfo(url);
     const audio = await ytdl(url, { quality: 'highestaudio',  filter: 'audioonly'});
-    const downloadPath  = `${RNFS.ExternalStorageDirectoryPath}/Music/WebDL/${basicInfo.videoDetails.title.replace(/([|\\?*<\":>+[\]/'])/g, '')}.m4a`;
+    const downloadPath  = `${RNFS.ExternalStorageDirectoryPath}/Music/WebDL/${title.replace(/([|\\?*<\":>+[\]/'])/g, '')}.m4a`;
 
 
     // let downloadLast = performance.now();

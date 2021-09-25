@@ -7,7 +7,7 @@ import { ProgressContextData } from '../contexts/ProgressContext';
 import { YoutubeDLWrapperInfo } from '../native_modules/YoutubeDL_Wrapper';
 
 
-export const downloadOther = (info: YoutubeDLWrapperInfo, { updateEta, updateProgress, updateVel }: ProgressContextData) => {
+export const downloadOther = (info: YoutubeDLWrapperInfo, title: string, { updateEta, updateProgress, updateVel }: ProgressContextData) => {
   return(new Promise(async (res, rej) => {
     if(!requestPermissions()) rej("User failed to accept premissions")
 
@@ -21,7 +21,7 @@ export const downloadOther = (info: YoutubeDLWrapperInfo, { updateEta, updatePro
     })
     if(!bestFormat) rej("No good format")
     const link = bestFormat.url;
-    const downloadPath  = `${RNFS.ExternalStorageDirectoryPath}/Download/WebDL/${info.title.replace(/([|\\?*<\":>+[\]/'])/g, '')}.${bestFormat.ext}`;
+    const downloadPath  = `${RNFS.ExternalStorageDirectoryPath}/Download/WebDL/${title.replace(/([|\\?*<\":>+[\]/'])/g, '')}.${bestFormat.ext}`;
 
     // let downloadLast = performance.now();
     // let downloadBegin = performance.now();

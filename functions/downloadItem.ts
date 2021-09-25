@@ -7,10 +7,12 @@ import RNFS from 'react-native-fs';
 import RNFetchBlob from 'rn-fetch-blob'
 import { LogLevel, RNFFmpeg, RNFFmpegConfig } from 'react-native-ffmpeg';
 import { ProgressContextData } from '../contexts/ProgressContext';
+import { progressItems } from './downloadQueue';
 
-export const downloadItem = async (url: string, format: string, { updateEta, updateProgress, updateVel }: ProgressContextData) => {
+export const downloadItem = async (url: string, format: string, title: string, { updateEta, updateProgress, updateVel }: ProgressContextData, progressCallback: ({eta, progress, vel}: progressItems) => Promise<void>) => {
   return(new Promise(async (res, rej) => {
-    if(!requestPermissions()) rej("User failed to accept premissions")
+    const permissions = await requestPermissions()
+    if(!permissions) rej("User failed to accept premissions")
     if(!ytdl.validateURL(url)) {
       console.log(url)
       Alert.alert(
@@ -23,7 +25,7 @@ export const downloadItem = async (url: string, format: string, { updateEta, upd
     const basicInfo = await ytdl.getBasicInfo(url);
     const audioPipe = await RNFFmpegConfig.registerNewFFmpegPipe()
     const videoPipe = await RNFFmpegConfig.registerNewFFmpegPipe()
-    const downloadPath  = `${RNFS.ExternalStorageDirectoryPath}/Download/${basicInfo.videoDetails.title.replace(/([|\\?*<\":>+[\]/'])/g, '')}.${format}`;
+    const downloadPath  = `${RNFS.ExternalStorageDirectoryPath}/Download/${title.replace(/([|\\?*<\":>+[\]/'])/g, '')}.${format}`;
     const video_args = ['-loglevel', `${LogLevel.AV_LOG_WARNING}`, '-hide_banner', '-i', audioPipe, '-i', videoPipe, '-map', '0:a', '-map', '1:v', '-c:v', 'copy', '-y', downloadPath];
     const audio = await ytdl(url, { quality: 'highestaudio' });
     const video = await ytdl(url, { quality: 'highestvideo' });
@@ -41,7 +43,7 @@ export const downloadItem = async (url: string, format: string, { updateEta, upd
     RNFetchBlob
       .config({ path: videoPipe })
       .fetch('GET', video[0].url, {})
-      .progress({ interval : 25}, (received, total) => {
+      .progress({ interval : 100}, async (received, total) => {
         const new_time = performance.now();
         const delta_time = new_time - downloadLast;
         const delta_download = (received - last_received);
@@ -50,6 +52,7 @@ export const downloadItem = async (url: string, format: string, { updateEta, upd
         const eta_time = msToTime((total-received)/downloadSpeed);
         last_received = received;
         downloadLast = new_time;
+        await progressCallback({eta: eta_time, progress: received / total, vel: `${((delta_download/(1024*1024))/(delta_time/1000)).toFixed(2)}MiB/s`})
         updateProgress(received / total);
         updateVel(`${((delta_download/(1024*1024))/(delta_time/1000)).toFixed(2)}MiB/s`);
         updateEta(eta_time);

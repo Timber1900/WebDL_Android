@@ -5,6 +5,8 @@ import { colors } from '../style';
 import { Icon } from 'react-native-elements'
 import { downloadQueue } from '../functions/downloadQueue';
 import { QueueContext } from '../contexts/QueueContext';
+import notifee, { AndroidImportance, AndroidColor } from '@notifee/react-native';
+import performance from 'react-native-performance';
 
 
 const Footer = ({ open_settings }: {open_settings: () => void}) => {
@@ -14,7 +16,6 @@ const Footer = ({ open_settings }: {open_settings: () => void}) => {
 
   return(
     <>
-
       <View style={styles.mainContainer}>
       <View style={styles.container}>
         <Text numberOfLines={1} style={styles.text}>{ status }</Text>

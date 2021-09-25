@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { colors } from '../style';
 import Header from './Header';
@@ -7,12 +7,28 @@ import Item from './Item';
 import Footer from './Footer';
 import Backdrop from './Backdrop';
 import SettingsModal from './SettingsModal';
-import getOtherInfo from '../native_modules/YoutubeDL_Wrapper';
+// import notifee, { EventType } from '@notifee/react-native';
 
 const Layout = () => {
   const [settings, setSettings] = useState(false);
 
   const { curQueue } = useContext(QueueContext);
+
+  // useEffect(() => {
+  //   return notifee.onForegroundEvent(({ type, detail }) => {
+  //     switch (type) {
+  //       case EventType.DISMISSED:
+  //         console.log('User dismissed notification', detail.notification);
+  //         break;
+  //       case EventType.PRESS:
+  //         console.log('User pressed notification', detail.notification);
+  //         break;
+  //       case EventType.DELIVERED:
+  //         console.log('User received notification', detail.notification);
+  //         break;
+  //     }
+  //   });
+  // }, []);
 
   return(
     <View style={{position: 'relative'}}>
@@ -24,8 +40,8 @@ const Layout = () => {
       <View style={ styles.container }>
         <Header />
         <ScrollView contentContainerStyle={ styles.itemContainer } style={{width: '100%', paddingHorizontal: 20}}>
-          {curQueue.map(({info, url, ext, youtube, otherInfo}, i) =>
-              <Item youtube={youtube} otherInfo={otherInfo} ext={ext} key={i} info={info} url={url} index={i}/>
+          {curQueue.map(({info, url, ext, youtube, otherInfo, title}, i) =>
+              <Item title={title} youtube={youtube} otherInfo={otherInfo} ext={ext} key={i} info={info} url={url} index={i}/>
             )}
         </ScrollView>
         <Footer open_settings={() => {setSettings(true)}}/>

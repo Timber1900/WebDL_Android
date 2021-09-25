@@ -13,7 +13,8 @@ export interface video {
   otherInfo?: YoutubeDLWrapperInfo,
   url: string,
   ext: 'v mkv' | 'v mp4' | 'v webm' | 'a m4a',
-  youtube: boolean
+  youtube: boolean,
+  title: string
 }
 
 export interface QueueContextData {
@@ -93,10 +94,12 @@ export default function QueueProvider({ children }: QueueProviderProps) {
           for(const {info, youtube} of val) {
             if(youtube) {
               const youtubeInfo = info as videoInfo;
-              queue_addons.push({ info: youtubeInfo, url: youtubeInfo.videoDetails.video_url, ext: MMKV.getString('def_ext') as 'v mkv' | 'v mp4' | 'v webm' | 'a m4a', youtube})
+              const title = youtubeInfo.videoDetails.title
+              queue_addons.push({ info: youtubeInfo, url: youtubeInfo.videoDetails.video_url, ext: MMKV.getString('def_ext') as 'v mkv' | 'v mp4' | 'v webm' | 'a m4a', youtube, title})
             } else {
               const otherInfo = info as YoutubeDLWrapperInfo;
-              queue_addons.push({ otherInfo: otherInfo, url: otherInfo.url, ext: MMKV.getString('def_ext') as 'v mkv' | 'v mp4' | 'v webm' | 'a m4a', youtube})
+              const title = otherInfo.title;
+              queue_addons.push({ otherInfo: otherInfo, url: otherInfo.url, ext: MMKV.getString('def_ext') as 'v mkv' | 'v mp4' | 'v webm' | 'a m4a', youtube, title})
             }
           }
         }

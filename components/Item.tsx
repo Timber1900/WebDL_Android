@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, View, Image, Dimensions, Text } from 'react-native';
+import { StyleSheet, View, Image, Text } from 'react-native';
 import { Icon } from 'react-native-elements'
 import { QueueContext, video } from '../contexts/QueueContext';
 import { colors } from '../style';
@@ -8,12 +8,14 @@ import { ProgressContext } from '../contexts/ProgressContext';
 import { downloadItem } from '../functions/downloadItem';
 import { downloadAudio } from '../functions/downloadAudio';
 import { downloadOther } from '../functions/downloadOther';
+import prompt from 'react-native-prompt-android';
+import notifee, { AndroidImportance, AndroidColor, AndroidStyle } from '@notifee/react-native';
+import { progressItems } from '../functions/downloadQueue';
 
-const Item = ({ info, ext, index, youtube, otherInfo, url }: video & {index: number}) => {
+const Item = ({ info, ext, index, youtube, otherInfo, url, title }: video & {index: number}) => {
   const { changeVideoExt, curQueue, updateQueue } = useContext(QueueContext)
   const ProgressContextData = useContext(ProgressContext)
   const [selectedFormat, setSelectedFormat] = useState(ext);
-  const title = youtube ? info?.videoDetails.title : otherInfo?.title
   const thumbnail = youtube ? info?.videoDetails.thumbnails[info?.videoDetails.thumbnails.length - 1].url : otherInfo?.thumbnails ? otherInfo?.thumbnails[otherInfo?.thumbnails.length - 1].url : 'https://media.istockphoto.com/vectors/no-thumbnail-image-vector-graphic-vector-id1147544806?k=20&m=1147544806&s=170667a&w=0&h=5rN3TBN7bwbhW_0WyTZ1wU_oW5Xhan2CNd-jlVVnwD0='
 
   useEffect(() => {
@@ -32,18 +34,109 @@ const Item = ({ info, ext, index, youtube, otherInfo, url }: video & {index: num
     const [type, format] = selectedFormat.split(' ')
 
     if(!youtube) {
-      if(otherInfo) await downloadOther(otherInfo, ProgressContextData),
+      if(otherInfo) await downloadOther(otherInfo, title, ProgressContextData),
       ProgressContextData.updateStatus(`Done Downloading ${title}`);
     } else if(type === 'v') {
-      await downloadItem(url, format, ProgressContextData);
+      const channelId = await notifee.createChannel({
+        id: 'video_download',
+        name: 'Video Download Notifications',
+        badge: false,
+        importance: AndroidImportance.DEFAULT
+      });
+
+      const onProgressCallback = async ({eta, progress, vel}: progressItems) => {
+        await notifee.displayNotification({
+          id: title,
+          title: `Downloading ${title}`,
+          android: {
+            channelId,
+            color: "#00C9E1",
+            colorized: true,
+            onlyAlertOnce: true,
+            ongoing: true,
+            autoCancel: false,
+            importance: AndroidImportance.DEFAULT,
+            pressAction: {
+              id: 'default',
+              launchActivity: 'default',
+            },
+            style: {
+              type: AndroidStyle.BIGTEXT,
+              text: `${(progress*100).toFixed(1)}%<br/>${vel} | ETA: ${eta}s`,
+            },
+            progress: {
+              max: 1000,
+              current: progress * 1000,
+              indeterminate: false
+            },
+          },
+        });
+      }
+
+      await notifee.displayNotification({
+        id: title,
+        title: `Downloading ${title}`,
+        body: 'Waiting for download to start',
+        android: {
+          channelId,
+          color: "#00C9E1",
+          colorized: true,
+          onlyAlertOnce: true,
+          ongoing: true,
+          autoCancel: false,
+          importance: AndroidImportance.DEFAULT,
+        },
+      });
+      await downloadItem(url, format, title, ProgressContextData, onProgressCallback);
+
+      await notifee.displayNotification({
+        id: title,
+        title: `Done downloading ${title}`,
+        body: `Successfully downloaded ${title}`,
+        android: {
+          channelId,
+          color: "#00C9E1",
+          colorized: true,
+          onlyAlertOnce: true,
+          ongoing: false,
+          autoCancel: true,
+          importance: AndroidImportance.DEFAULT,
+        },
+      });
+
       ProgressContextData.updateStatus(`Done Downloading ${title}`);
     } else {
-      await downloadAudio(url, ProgressContextData);
+      await downloadAudio(url, title, ProgressContextData);
       ProgressContextData.updateStatus(`Started Downloading ${title}`);
     }
 
     removeFromQueue()
   }
+
+  const renameVideo = () => {
+    prompt(
+      'Edit Flic nickname',
+      'Choose a name you will recognize',
+      [
+       { text: 'Cancel', style: 'cancel' },
+       {
+        text: 'OK',
+        onPress: value => {
+          const temp = [...curQueue];
+          temp[index].title = value;
+          updateQueue(temp);
+        },
+       },
+      ],
+      {
+        type: 'plain-text',
+        cancelable: true,
+        defaultValue: title,
+      }
+     );
+  }
+
+
 
   return(
     <View style={styles.container}>
@@ -54,7 +147,7 @@ const Item = ({ info, ext, index, youtube, otherInfo, url }: video & {index: num
           <View style={ styles.buttonsContainer }>
             <Icon onPress={removeFromQueue} type="material" name="close" color="#fff" size={35}/>
             <Icon onPress={downloadVideo} type="material" name="file-download" color="#fff" size={35}/>
-            <Icon onPress={() => {}} type="material" name="edit" color="#fff" size={35}/>
+            <Icon onPress={renameVideo} type="material" name="edit" color="#fff" size={35}/>
           </View>
           <View style={ styles.pickerContainer }>
             <Picker style={{width: '100%', height: 20}} selectedValue={selectedFormat}  onValueChange={(itemValue, itemIndex) => setSelectedFormat(itemValue) }>

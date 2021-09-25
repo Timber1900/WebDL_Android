@@ -982,6 +982,11 @@
     "@types/yargs" "^16.0.0"
     chalk "^4.0.0"
 
+"@notifee/react-native@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@notifee/react-native/-/react-native-3.0.0.tgz#8d112d3566c6195402e23eb050821f6ec3d706fc"
+  integrity sha512-5V1jCkhvPh0KmvjAiVhXTXjSlzaRWJ1A/njlTXmQo82m+Z+GCEjPsfuswYXhECJvHihpLawI9C4tWJjZb56AIQ==
+
 "@react-native-community/cli-debugger-ui@^5.0.1":
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/@react-native-community/cli-debugger-ui/-/cli-debugger-ui-5.0.1.tgz#6b1f3367b8e5211e899983065ea2e72c1901d75f"
@@ -6103,6 +6108,11 @@ react-native-progress@^5.0.0:
   integrity sha512-KjnGIt3r9i5Kn2biOD9fXLJocf0bwxPRxOyAgXEnZTJQU2O+HyzgGFRCbM5h3izm9kKIkSc1txh8aGmMafCD9A==
   dependencies:
     prop-types "^15.7.2"
+
+react-native-prompt-android@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/react-native-prompt-android/-/react-native-prompt-android-1.1.0.tgz#3c5168029075cb9f72549fd5f92403372fb234e9"
+  integrity sha512-4JoyEaT2ZnK9IH+tDFpbTiQBgva8UIFGQf4/Uw/tnEVWBERlVlzcs5B82T9BkeEhEqXhp89JaiSBnLWj30lciw==
 
 react-native-ratings@8.0.4:
   version "8.0.4"
