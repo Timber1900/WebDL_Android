@@ -2,7 +2,7 @@ import { Picker } from '@react-native-picker/picker';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, BackHandler, Pressable } from 'react-native';
 import { QueueContext } from '../contexts/QueueContext';
-import { colors } from '../style';
+import { colors } from '../../style';
 
 
 const SettingsModal = ({close_function}: {close_function: () => void}) => {
@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     width: '80%',
     height: '80%',
-    backgroundColor: colors['bg-gray-700'],
+    backgroundColor: colors['bg-gray-800'],
     alignItems: 'center',
     justifyContent: 'flex-start',
     zIndex: 7,
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
   pickerContainer: {
     flexGrow: 1,
     borderRadius: 10,
-    backgroundColor: colors['bg-gray-800'],
+    backgroundColor: colors['bg-gray-700'],
     margin: 10,
   },
 })

@@ -2,7 +2,7 @@ import { Alert } from 'react-native'
 import ytdl from 'react-native-ytdl'
 import requestPermissions from './requestPermissions'
 import performance from 'react-native-performance';
-import msToTime from '../functions/msToTime';
+import msToTime from './msToTime';
 import RNFS from 'react-native-fs';
 import RNFetchBlob from 'rn-fetch-blob'
 import { LogLevel, RNFFmpeg, RNFFmpegConfig } from 'react-native-ffmpeg';

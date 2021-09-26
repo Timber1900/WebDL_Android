@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, globalStyles } from '../style';
+import { colors, globalStyles } from '../../style';
 import ProgressBar from 'react-native-progress/Bar'
 import { ProgressContext } from '../contexts/ProgressContext';
 

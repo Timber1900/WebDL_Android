@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react'
 import { StyleSheet, Text, View } from 'react-native';
 import { ProgressContext } from '../contexts/ProgressContext';
-import { colors } from '../style';
+import { colors } from '../../style';
 import { Icon } from 'react-native-elements'
 import { downloadQueue } from '../functions/downloadQueue';
 import { QueueContext } from '../contexts/QueueContext';

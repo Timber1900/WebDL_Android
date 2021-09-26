@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, View, Image, Text } from 'react-native';
 import { Icon } from 'react-native-elements'
 import { QueueContext, video } from '../contexts/QueueContext';
-import { colors } from '../style';
+import { colors } from '../../style';
 import { Picker } from '@react-native-picker/picker';
 import { ProgressContext } from '../contexts/ProgressContext';
 import { downloadItem } from '../functions/downloadItem';

@@ -1,34 +1,16 @@
 import React, { useContext, useState } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { colors } from '../style';
+import { colors } from '../../style';
 import Header from './Header';
 import { QueueContext } from '../contexts/QueueContext';
 import Item from './Item';
 import Footer from './Footer';
 import Backdrop from './Backdrop';
 import SettingsModal from './SettingsModal';
-// import notifee, { EventType } from '@notifee/react-native';
 
 const Layout = () => {
   const [settings, setSettings] = useState(false);
-
   const { curQueue } = useContext(QueueContext);
-
-  // useEffect(() => {
-  //   return notifee.onForegroundEvent(({ type, detail }) => {
-  //     switch (type) {
-  //       case EventType.DISMISSED:
-  //         console.log('User dismissed notification', detail.notification);
-  //         break;
-  //       case EventType.PRESS:
-  //         console.log('User pressed notification', detail.notification);
-  //         break;
-  //       case EventType.DELIVERED:
-  //         console.log('User received notification', detail.notification);
-  //         break;
-  //     }
-  //   });
-  // }, []);
 
   return(
     <View style={{position: 'relative'}}>
